@@ -1,19 +1,36 @@
-import { Button } from "@workspace/ui/components/button"
+// import { Button } from "@workspace/ui/components/button"
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
+import Profile from "./pages/profile/Profile"
+import Overview from "./pages/boardOverview/boardOverview"
+import Detail from "./pages/boardDetail/boardDetail"
+import RootRoute from "./pages/root"
+import ErrorPage from "./pages/errorRoute/errorRoute"
 
 export function App() {
-  return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="text-muted-foreground font-mono text-xs">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
-  )
+  const router = createBrowserRouter([
+    {
+      path: "/",
+      element: <RootRoute />,
+      errorElement: <ErrorPage />,
+      children: [
+        {
+          index: true,
+          element: <Navigate to="/boards" replace />,
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+        },
+        {
+          path: "boards",
+          children: [
+            { index: true, element: <Overview /> },
+            { path: ":id", element: <Detail /> },
+          ],
+        },
+      ],
+    },
+  ])
+
+  return <RouterProvider router={router}></RouterProvider>
 }
