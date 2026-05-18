@@ -18,7 +18,7 @@ export default function BoardCard({
   onDelete: (id: string) => void
 }) {
   return (
-    <Link to={"/boards/123"}>
+    <Link to={`/boards/${board.id}`}>
       <Card className="border border-black bg-white text-black transition-shadow hover:shadow-md">
         <CardHeader>
           <CardTitle>{board.title}</CardTitle>

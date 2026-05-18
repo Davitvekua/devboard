@@ -27,7 +27,7 @@ export default function Overview() {
 
   function handleAddNewBoard() {
     const newBoard: Board = {
-      id: String(Math.random()),
+      id: String(crypto.randomUUID()),
       title: boardNameInput,
       tasks: [],
     }
