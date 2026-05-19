@@ -4,9 +4,10 @@ import { ArrowLeft, Check, Pencil, X } from "lucide-react"
 import { useReducer, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import BoardColumn from "./components/boardColumn"
-import type { Board, Task } from "@/types.ts/boardTypes"
-import { getBoardById, getBoards } from "@/dataTransfer/api"
+import type { Task } from "@/types.ts/boardTypes"
+import { getBoardById } from "@/dataTransfer/api"
 import { useBoardDetailReducer } from "@/hooks/boardDetailReducer"
+import TaskDialog from "./components/taskDialog"
 
 export default function BoardDetail() {
   const { id } = useParams()
@@ -20,7 +21,7 @@ export default function BoardDetail() {
     tasks: [],
   }
 
-  const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(true)
+  const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false)
 
   const [editTask, setEditTask] = useState<Task | undefined>()
 
@@ -38,7 +39,6 @@ export default function BoardDetail() {
   }
 
   function handleEditTask(task: Task) {
-    console.log(task)
     setEditTask(task)
     setIsEditTaskDialogOpen(true)
   }
@@ -51,6 +51,20 @@ export default function BoardDetail() {
   function handleSubmitEditBoardTitle() {
     dispatchBoard({ type: "UPDATE_BOARD_NAME", data: boardName })
     setIsEditingBoardName(false)
+  }
+
+  function handleUpdateTask(task: Task) {
+    dispatchBoard({ type: "UPDATE_TASK", data: task })
+  }
+
+  function handleUpdateTaskStatus(
+    id: string,
+    newColumn: "Todo" | "In Progress" | "Done"
+  ) {
+    dispatchBoard({
+      type: "UPDATE_TASK_STATUS",
+      data: { id, newColumn },
+    })
   }
 
   function renderBoardDetailHeader() {
@@ -106,18 +120,44 @@ export default function BoardDetail() {
         </Link>
         {renderBoardDetailHeader()}
       </div>
+      <TaskDialog
+        key={editTask?.id ?? "empty-0"}
+        open={isEditTaskDialogOpen}
+        handleOpenChange={setIsEditTaskDialogOpen}
+        onSubmitUpdate={handleUpdateTask}
+        task={
+          editTask ?? {
+            id: "",
+            title: "",
+            description: "",
+            column: "Todo",
+          }
+        }
+      />
       <div className="mt-4 grid w-4/5 grid-cols-4 gap-4">
         <BoardColumn
+          onAddTask={handleAddTask}
+          onDeleteTask={handleDeleteTask}
+          onUpdateTaskStatus={handleUpdateTaskStatus}
           title="Todo"
           tasks={board.tasks.filter((task) => task.column === "Todo")}
+          handleEditTask={handleEditTask}
         />
         <BoardColumn
+          onAddTask={handleAddTask}
+          onDeleteTask={handleDeleteTask}
+          onUpdateTaskStatus={handleUpdateTaskStatus}
           title="In Progress"
           tasks={board.tasks.filter((task) => task.column === "In Progress")}
+          handleEditTask={handleEditTask}
         />
         <BoardColumn
+          onAddTask={handleAddTask}
+          onDeleteTask={handleDeleteTask}
+          onUpdateTaskStatus={handleUpdateTaskStatus}
           title="Done"
           tasks={board.tasks.filter((task) => task.column === "Done")}
+          handleEditTask={handleEditTask}
         />
       </div>
     </div>

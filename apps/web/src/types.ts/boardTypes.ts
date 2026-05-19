@@ -8,5 +8,6 @@ export interface Task {
   id: string
   title: string
   column: "Todo" | "In Progress" | "Done"
-  description: string
+  description?: string
+  deadline?: string
 }

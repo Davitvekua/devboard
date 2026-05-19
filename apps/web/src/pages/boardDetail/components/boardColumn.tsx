@@ -35,24 +35,56 @@ import {
 export default function boardColumn({
   title,
   tasks,
+  onAddTask,
+  onDeleteTask,
+  onUpdateTaskStatus,
+  handleEditTask,
 }: {
-  title: string
+  title: "Todo" | "In Progress" | "Done"
   tasks: Task[]
+  onAddTask: (task: Task) => void
+  onDeleteTask: (task: Task) => void
+  onUpdateTaskStatus: (
+    id: string,
+    newColumn: "Todo" | "In Progress" | "Done"
+  ) => void
+  handleEditTask: (task: Task) => void
 }) {
   const [isDragHover, setIsDragHover] = useState(false)
   const [date, setDate] = useState<Date>()
-  const [taskTitle, setTaskTitle] = useState<string>()
-  const [taskDescription, setTaskDescription] = useState<string>()
-  const [selectedPerson, setSelectedPerson] = useState<string>()
-  function isColumnInTasks(column: string) {
-    return column === title
+  const [taskTitle, setTaskTitle] = useState<string>("")
+  const [taskDescription, setTaskDescription] = useState<string>("")
+  const [selectedPerson, setSelectedPerson] = useState<string>("")
+
+  function isColumnInTasks(column: string | null) {
+    return column?.toLowerCase() === title.toLowerCase()
+  }
+
+  function getColumnFromDraggedItem(dataTransfer: DataTransfer): string | null {
+    let column: string | null = null
+    dataTransfer.types.forEach((type) => {
+      if (type.startsWith("column-")) {
+        column = type.replace("column-", "")
+      }
+    })
+    return column
+  }
+
+  function getIdFromDraggedItem(dataTransfer: DataTransfer): string | null {
+    let column: string | null = null
+    dataTransfer.types.forEach((type) => {
+      if (type.startsWith("id-")) {
+        column = type.replace("id-", "")
+      }
+    })
+    return column
   }
 
   function handleDragHover(event: React.DragEvent<HTMLDivElement>) {
-    const taskColumn = event.dataTransfer.getData("taskColumn")
-    console.log(taskColumn)
+    event.preventDefault()
+    const column = getColumnFromDraggedItem(event.dataTransfer)
 
-    if (isColumnInTasks(taskColumn)) {
+    if (isColumnInTasks(column)) {
       setIsDragHover(false)
     } else {
       setIsDragHover(true)
@@ -60,22 +92,39 @@ export default function boardColumn({
   }
 
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
-    const taskColumn = event.dataTransfer.getData("taskColumn")
+    const column = getColumnFromDraggedItem(event.dataTransfer)
+    const id = getIdFromDraggedItem(event.dataTransfer) ?? ""
 
-    if (isColumnInTasks(taskColumn)) {
+    if (isColumnInTasks(column)) {
       setIsDragHover(false)
     } else {
+      onUpdateTaskStatus(id, title)
+      setIsDragHover(false)
     }
   }
 
   function handleAddNewTask() {
-    console.log(
-      "Add new task with title: ",
-      taskTitle,
-      taskDescription,
-      selectedPerson,
-      date
-    )
+    const newTask: Task = {
+      id: String(crypto.randomUUID()),
+      title: taskTitle,
+      description: taskDescription ?? "",
+      column: title,
+      deadline: date?.toISOString() ?? undefined,
+    }
+
+    onAddTask(newTask)
+    setTaskTitle("")
+    setTaskDescription("")
+    setSelectedPerson("")
+    setDate(undefined)
+  }
+
+  function handleDragLeave(event: React.DragEvent<HTMLDivElement>) {
+    const nextElement = event.relatedTarget as Node | null
+    if (nextElement && event.currentTarget.contains(nextElement)) {
+      return
+    }
+    setIsDragHover(false)
   }
 
   return (
@@ -83,7 +132,7 @@ export default function boardColumn({
       className={`rounded-lg border border-black bg-gray-100 text-black ${isDragHover && ""}`}
       onDrop={handleDrop}
       onDragEnter={handleDragHover}
-      onDragLeave={() => setIsDragHover(false)}
+      onDragLeave={handleDragLeave}
       onDragOver={handleDragHover}
     >
       <div className="flex items-center justify-between border-b border-black p-4 text-black">
@@ -182,9 +231,15 @@ export default function boardColumn({
       >
         Hier ablegen
       </div>
-      <div className="p-3">
+      <div className="flex flex-col gap-2 p-3">
         {tasks.map((task) => {
-          return <TaskCard task={task} />
+          return (
+            <TaskCard
+              onDeleteTask={onDeleteTask}
+              task={task}
+              handleEditTask={handleEditTask}
+            />
+          )
         })}
       </div>
     </div>
