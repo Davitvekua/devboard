@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import {
   Dialog,
   DialogClose,
@@ -29,6 +29,7 @@ import { Textarea } from "@workspace/ui/components/textarea"
 import { Button } from "@workspace/ui/components/button"
 import { ChevronDownIcon } from "lucide-react"
 import { Calendar } from "@workspace/ui/components/calendar"
+import { UserNameContext } from "@/context/userNameContext"
 
 export default function TaskDialog({
   open,
@@ -46,7 +47,10 @@ export default function TaskDialog({
   const [taskDescription, setTaskDescription] = useState<string>(
     task.description ?? ""
   )
-  const [selectedPerson, setSelectedPerson] = useState<string>("")
+  const [selectedPerson, setSelectedPerson] = useState<string>(
+    task.assignedTo ?? " "
+  )
+  const context = useContext(UserNameContext)
 
   function handleSubmitUpdate() {
     const updatedTask: Task = {
@@ -54,6 +58,7 @@ export default function TaskDialog({
       title: taskTitle,
       description: taskDescription,
       deadline: date.toISOString(),
+      assignedTo: selectedPerson,
       column: task.column,
     }
     onSubmitUpdate(updatedTask)
@@ -92,9 +97,10 @@ export default function TaskDialog({
             </SelectTrigger>
             <SelectContent className="bg-gray-200 text-black">
               <SelectGroup>
-                <SelectItem value="light">Light</SelectItem>
-                <SelectItem value="dark">Dark</SelectItem>
-                <SelectItem value="system">System</SelectItem>
+                <SelectItem value=" ">Keine Zuweisung</SelectItem>
+                <SelectItem value={context?.userName ?? "Undefinde"}>
+                  {context?.userName ?? "Undefinde"}
+                </SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -130,12 +136,13 @@ export default function TaskDialog({
           <DialogClose>
             <Button variant={"outline"}>Abbrechen</Button>
           </DialogClose>
-
-          <DialogClose>
-            <Button className="bg-blue-400" onClick={handleSubmitUpdate}>
-              Speicher
-            </Button>
-          </DialogClose>
+          {taskTitle === "" ? (
+            <Button disabled>Speichern</Button>
+          ) : (
+            <DialogClose>
+              <Button onClick={handleSubmitUpdate}>Speichern</Button>
+            </DialogClose>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

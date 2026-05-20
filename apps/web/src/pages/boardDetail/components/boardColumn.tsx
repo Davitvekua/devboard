@@ -1,10 +1,10 @@
 import { Button } from "@workspace/ui/components/button"
 import { Calendar } from "@workspace/ui/components/calendar"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { ChevronDownIcon, Plus } from "lucide-react"
+import { ChevronDownIcon, Plus, SpaceIcon } from "lucide-react"
 import TaskCard from "./taskCard"
 import type { Task } from "@/types.ts/boardTypes"
-import { useState } from "react"
+import { useContext, useState } from "react"
 import {
   Dialog,
   DialogClose,
@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
+import { UserNameContext } from "@/context/userNameContext"
 
 export default function boardColumn({
   title,
@@ -54,7 +55,8 @@ export default function boardColumn({
   const [date, setDate] = useState<Date>()
   const [taskTitle, setTaskTitle] = useState<string>("")
   const [taskDescription, setTaskDescription] = useState<string>("")
-  const [selectedPerson, setSelectedPerson] = useState<string>("")
+  const [selectedPerson, setSelectedPerson] = useState<string>(" ")
+  const context = useContext(UserNameContext)
 
   function isColumnInTasks(column: string | null) {
     return column?.toLowerCase() === title.toLowerCase()
@@ -109,6 +111,7 @@ export default function boardColumn({
       title: taskTitle,
       description: taskDescription ?? "",
       column: title,
+      assignedTo: selectedPerson,
       deadline: date?.toISOString() ?? undefined,
     }
 
@@ -136,7 +139,10 @@ export default function boardColumn({
       onDragOver={handleDragHover}
     >
       <div className="flex items-center justify-between border-b border-black p-4 text-black">
-        <h3 className="font-bold">{title}</h3>
+        <h3 className="font-bold">
+          {title}{" "}
+          <span className="ml-2 text-sm font-normal">{tasks.length}</span>
+        </h3>
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="ghost" size="icon-lg">
@@ -175,9 +181,10 @@ export default function boardColumn({
                 </SelectTrigger>
                 <SelectContent className="bg-gray-200 text-black">
                   <SelectGroup>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
+                    <SelectItem value=" ">Keine Zuweisung</SelectItem>
+                    <SelectItem value={context?.userName ?? "Undefinde"}>
+                      {context?.userName ?? "Undefinde"}
+                    </SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -216,11 +223,15 @@ export default function boardColumn({
                 <Button variant={"outline"}>Abbrechen</Button>
               </DialogClose>
 
-              <DialogClose>
-                <Button className="bg-blue-400" onClick={handleAddNewTask}>
-                  Speicher
-                </Button>
-              </DialogClose>
+              {taskTitle === "" ? (
+                <Button disabled>Speichern</Button>
+              ) : (
+                <DialogClose>
+                  <Button className="bg-blue-400" onClick={handleAddNewTask}>
+                    Speicher
+                  </Button>
+                </DialogClose>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -232,6 +243,9 @@ export default function boardColumn({
         Hier ablegen
       </div>
       <div className="flex flex-col gap-2 p-3">
+        {tasks.length === 0 && (
+          <p className="text-center text-sm">Keine Tasks</p>
+        )}
         {tasks.map((task) => {
           return (
             <TaskCard

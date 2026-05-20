@@ -1,3 +1,4 @@
+import { UserNameContext } from "@/context/userNameContext"
 import { Button } from "@workspace/ui/components/button"
 import {
   Card,
@@ -9,10 +10,16 @@ import {
 } from "@workspace/ui/components/card"
 import { Input } from "@workspace/ui/components/input"
 import { Label } from "@workspace/ui/components/label"
-import { useState } from "react"
+import { useContext, useState } from "react"
 
 export default function Profile() {
-  const [userName, setUserName] = useState("David")
+  const context = useContext(UserNameContext)
+  const [username, setUsername] = useState(context?.userName ?? "")
+
+  function handleSubmit() {
+    ;(context?.setUserName(username),
+      localStorage.setItem("kanban-user-name", username))
+  }
 
   return (
     <div className="flex h-full justify-center bg-white text-black">
@@ -34,9 +41,9 @@ export default function Profile() {
                     id="username"
                     className="border border-gray-300 py-5"
                     type="text"
-                    value={userName}
+                    value={username}
                     onChange={(e) => {
-                      setUserName(e.target.value)
+                      setUsername(e.target.value)
                     }}
                     required
                   />
@@ -50,6 +57,7 @@ export default function Profile() {
               variant="default"
               size={"icon-lg"}
               className="w-fit bg-blue-400 px-3"
+              onClick={handleSubmit}
             >
               Speichern
             </Button>

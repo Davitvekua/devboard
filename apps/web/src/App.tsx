@@ -1,10 +1,10 @@
-// import { Button } from "@workspace/ui/components/button"
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom"
 import Profile from "./pages/profile/Profile"
 import Overview from "./pages/boardOverview/boardOverview"
 import Detail from "./pages/boardDetail/boardDetail"
 import RootRoute from "./pages/root"
 import ErrorPage from "./pages/errorRoute/errorRoute"
+import UserNameProvider from "./context/userNameProvider"
 
 export function App() {
   const router = createBrowserRouter([
@@ -32,5 +32,9 @@ export function App() {
     },
   ])
 
-  return <RouterProvider router={router}></RouterProvider>
+  return (
+    <UserNameProvider>
+      <RouterProvider router={router}></RouterProvider>
+    </UserNameProvider>
+  )
 }

@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@workspace/ui/components/card"
-import { Trash2 } from "lucide-react"
+import { Calendar, CircleUser, Trash2 } from "lucide-react"
 
 export default function TaskCard({
   task,
@@ -30,11 +30,24 @@ export default function TaskCard({
     >
       <CardHeader>
         <CardTitle>{task.title}</CardTitle>
-        <CardDescription>
-          {task.description}
-          {task.deadline
-            ? new Date(task.deadline).toLocaleDateString("de-De")
-            : ""}
+        <CardDescription className="flex flex-col">
+          {task.description && <span>{task.description}</span>}
+
+          {task.assignedTo !== " " && task.assignedTo && (
+            <span className="flex items-center gap-1">
+              <CircleUser className="size-3" />
+              {task.assignedTo}
+            </span>
+          )}
+
+          {task.deadline && (
+            <span className="flex items-center gap-1">
+              <Calendar className="size-3" />
+              {new Date(task.deadline ?? new Date()).toLocaleDateString(
+                "de-DE"
+              )}
+            </span>
+          )}
         </CardDescription>
         <CardAction>
           <Button
