@@ -48,7 +48,7 @@ export default function TaskDialog({
     task.description ?? ""
   )
   const [selectedPerson, setSelectedPerson] = useState<string>(
-    task.assignedTo ?? " "
+    task.assignedTo ?? "none"
   )
   const context = useContext(UserNameContext)
 
@@ -58,7 +58,7 @@ export default function TaskDialog({
       title: taskTitle,
       description: taskDescription,
       deadline: date.toISOString(),
-      assignedTo: selectedPerson,
+      assignedTo: selectedPerson === "none" ? undefined : selectedPerson,
       column: task.column,
     }
     onSubmitUpdate(updatedTask)
@@ -97,10 +97,12 @@ export default function TaskDialog({
             </SelectTrigger>
             <SelectContent className="bg-gray-200 text-black">
               <SelectGroup>
-                <SelectItem value=" ">Keine Zuweisung</SelectItem>
-                <SelectItem value={context?.userName ?? "Undefinde"}>
-                  {context?.userName ?? "Undefinde"}
-                </SelectItem>
+                <SelectItem value="none">Keine Zuweisung</SelectItem>
+                {context?.userName && (
+                  <SelectItem value={context.userName}>
+                    {context.userName}
+                  </SelectItem>
+                )}
               </SelectGroup>
             </SelectContent>
           </Select>

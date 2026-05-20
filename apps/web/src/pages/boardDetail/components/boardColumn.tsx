@@ -55,7 +55,7 @@ export default function boardColumn({
   const [date, setDate] = useState<Date>()
   const [taskTitle, setTaskTitle] = useState<string>("")
   const [taskDescription, setTaskDescription] = useState<string>("")
-  const [selectedPerson, setSelectedPerson] = useState<string>(" ")
+  const [selectedPerson, setSelectedPerson] = useState<string>("none")
   const context = useContext(UserNameContext)
 
   function isColumnInTasks(column: string | null) {
@@ -111,14 +111,14 @@ export default function boardColumn({
       title: taskTitle,
       description: taskDescription ?? "",
       column: title,
-      assignedTo: selectedPerson,
+      assignedTo: selectedPerson === "none" ? undefined : selectedPerson,
       deadline: date?.toISOString() ?? undefined,
     }
 
     onAddTask(newTask)
     setTaskTitle("")
     setTaskDescription("")
-    setSelectedPerson("")
+    setSelectedPerson("none")
     setDate(undefined)
   }
 
@@ -181,10 +181,12 @@ export default function boardColumn({
                 </SelectTrigger>
                 <SelectContent className="bg-gray-200 text-black">
                   <SelectGroup>
-                    <SelectItem value=" ">Keine Zuweisung</SelectItem>
-                    <SelectItem value={context?.userName ?? "Undefinde"}>
-                      {context?.userName ?? "Undefinde"}
-                    </SelectItem>
+                    <SelectItem value="none">Keine Zuweisung</SelectItem>
+                    {context?.userName && (
+                      <SelectItem value={context.userName}>
+                        {context.userName}
+                      </SelectItem>
+                    )}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -219,14 +221,14 @@ export default function boardColumn({
               </Popover>
             </div>
             <DialogFooter className="bg-gray-100">
-              <DialogClose>
+              <DialogClose asChild>
                 <Button variant={"outline"}>Abbrechen</Button>
               </DialogClose>
 
               {taskTitle === "" ? (
                 <Button disabled>Speichern</Button>
               ) : (
-                <DialogClose>
+                <DialogClose asChild>
                   <Button className="bg-blue-400" onClick={handleAddNewTask}>
                     Speicher
                   </Button>

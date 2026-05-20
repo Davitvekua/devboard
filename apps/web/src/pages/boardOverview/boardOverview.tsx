@@ -87,7 +87,13 @@ export default function Overview() {
       </div>
       <div className="grid w-4/5 grid-cols-3 grid-rows-3 gap-4 p-2 text-black">
         {boards.map((board) => {
-          return <BoardCard board={board} onDelete={handleDeleteBorad} />
+          return (
+            <BoardCard
+              key={board.id}
+              board={board}
+              onDelete={handleDeleteBorad}
+            />
+          )
         })}
       </div>
     </div>
