@@ -1,7 +1,7 @@
 import { Button } from "@workspace/ui/components/button"
 import { Calendar } from "@workspace/ui/components/calendar"
 import { Textarea } from "@workspace/ui/components/textarea"
-import { ChevronDownIcon, Plus, SpaceIcon } from "lucide-react"
+import { ChevronDownIcon, Plus } from "lucide-react"
 import TaskCard from "./taskCard"
 import type { Task } from "@/types.ts/boardTypes"
 import { useContext, useState } from "react"
