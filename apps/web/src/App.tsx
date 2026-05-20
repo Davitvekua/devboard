@@ -7,30 +7,33 @@ import ErrorPage from "./pages/errorRoute/errorRoute"
 import UserNameProvider from "./context/userNameProvider"
 
 export function App() {
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <RootRoute />,
-      errorElement: <ErrorPage />,
-      children: [
-        {
-          index: true,
-          element: <Navigate to="/boards" replace />,
-        },
-        {
-          path: "profile",
-          element: <Profile />,
-        },
-        {
-          path: "boards",
-          children: [
-            { index: true, element: <Overview /> },
-            { path: ":id", element: <Detail /> },
-          ],
-        },
-      ],
-    },
-  ])
+  const router = createBrowserRouter(
+    [
+      {
+        path: "/",
+        element: <RootRoute />,
+        errorElement: <ErrorPage />,
+        children: [
+          {
+            index: true,
+            element: <Navigate to="/boards" replace />,
+          },
+          {
+            path: "profile",
+            element: <Profile />,
+          },
+          {
+            path: "boards",
+            children: [
+              { index: true, element: <Overview /> },
+              { path: ":id", element: <Detail /> },
+            ],
+          },
+        ],
+      },
+    ],
+    { basename: "/devboard" }
+  )
 
   return (
     <UserNameProvider>
