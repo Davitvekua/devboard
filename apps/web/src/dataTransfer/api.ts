@@ -1,8 +1,22 @@
 import type { Board } from "@/types.ts/boardTypes"
+import supabase from "./db"
 
 const LOCAL_STORAGE_BOARDS_KEY = "boards"
 
-export function getBoards(): Board[] {
+export async function getBoards(): Promise<Board[]> {
+  const { data: boards, error } = await supabase
+    .from("boards")
+    .select("*, tasks(*)")
+
+  if (error) {
+    console.error("Error fetching boards:", error)
+    return []
+  }
+
+  return boards
+}
+
+export function getBoardsFromLocaleStorage(): Board[] {
   const boardsStringified = localStorage.getItem(LOCAL_STORAGE_BOARDS_KEY) ?? ""
   if (boardsStringified) {
     const boards: Board[] = JSON.parse(boardsStringified) ?? []
