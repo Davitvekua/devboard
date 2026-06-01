@@ -53,7 +53,7 @@ export async function getBoardById(id: string): Promise<Board | undefined> {
 }
 
 export function saveBoard(board: Board): void {
-  const boards = getBoards()
+  const boards = getBoardsFromLocaleStorage()
 
   const updatedBoards = boards.map((b) => {
     if (b.id === board.id) {
@@ -128,7 +128,7 @@ export async function insertTask(task: CreateTask): Promise<Task | null> {
 }
 
 export async function updateTask(
-  id: string,
+  id: number,
   task: UpdateTask
 ): Promise<Task | null> {
   const { data, error } = await supabase

@@ -31,7 +31,8 @@ export default function BoardCard({
               size={"icon"}
               className="hover:text-destructive"
               onClick={(e) => {
-                ;(e.preventDefault(), onDelete(board.id))
+                e.preventDefault()
+                onDelete(board.id)
               }}
             >
               <Trash2></Trash2>

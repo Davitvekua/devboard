@@ -33,7 +33,7 @@ import {
 } from "@workspace/ui/components/select"
 import { UserNameContext } from "@/context/userNameContext"
 
-export default function boardColumn({
+export default function BoardColumn({
   title,
   tasks,
   onAddTask,
@@ -46,7 +46,7 @@ export default function boardColumn({
   onAddTask: (task: CreateTask) => void
   onDeleteTask: (task: Task) => void
   onUpdateTaskStatus: (
-    id: string,
+    id: number,
     newColumn: "Todo" | "In Progress" | "Done"
   ) => void
   handleEditTask: (task: Task) => void
@@ -72,14 +72,14 @@ export default function boardColumn({
     return column
   }
 
-  function getIdFromDraggedItem(dataTransfer: DataTransfer): string | null {
-    let column: string | null = null
+  function getIdFromDraggedItem(dataTransfer: DataTransfer): number | null {
+    let id: number | null = null
     dataTransfer.types.forEach((type) => {
       if (type.startsWith("id-")) {
-        column = type.replace("id-", "")
+        id = Number(type.replace("id-", ""))
       }
     })
-    return column
+    return id
   }
 
   function handleDragHover(event: React.DragEvent<HTMLDivElement>) {
@@ -95,9 +95,9 @@ export default function boardColumn({
 
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
     const column = getColumnFromDraggedItem(event.dataTransfer)
-    const id = getIdFromDraggedItem(event.dataTransfer) ?? ""
+    const id = getIdFromDraggedItem(event.dataTransfer)
 
-    if (isColumnInTasks(column)) {
+    if (id === null || isColumnInTasks(column)) {
       setIsDragHover(false)
     } else {
       onUpdateTaskStatus(id, title)
@@ -106,13 +106,12 @@ export default function boardColumn({
   }
 
   function handleAddNewTask() {
-    const newTask: Task = {
-      id: String(crypto.randomUUID()),
+    const newTask: CreateTask = {
       title: taskTitle,
-      description: taskDescription ?? "",
+      description: taskDescription,
       column: title,
-      assignedTo: selectedPerson === "none" ? undefined : selectedPerson,
-      deadline: date?.toISOString() ?? undefined,
+      assignedTo: selectedPerson === "none" ? null : selectedPerson,
+      deadline: date?.toISOString() ?? null,
     }
 
     onAddTask(newTask)
@@ -251,6 +250,7 @@ export default function boardColumn({
         {tasks.map((task) => {
           return (
             <TaskCard
+              key={task.id}
               onDeleteTask={onDeleteTask}
               task={task}
               handleEditTask={handleEditTask}

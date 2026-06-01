@@ -55,7 +55,8 @@ export default function TaskCard({
             variant={"ghost"}
             size={"icon-lg"}
             onClick={(e) => {
-              ;(e.stopPropagation(), onDeleteTask(task))
+              e.stopPropagation()
+              onDeleteTask(task)
             }}
           >
             <Trash2 />

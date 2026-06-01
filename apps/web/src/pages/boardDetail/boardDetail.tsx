@@ -1,7 +1,7 @@
 import { Button } from "@workspace/ui/components/button"
 import { Input } from "@workspace/ui/components/input"
 import { ArrowLeft, Check, Pencil, X } from "lucide-react"
-import { useReducer, useState } from "react"
+import { useEffect, useReducer, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import BoardColumn from "./components/boardColumn"
 import type { CreateTask, Task, UpdateTask } from "@/types.ts/boardTypes"
@@ -20,9 +20,10 @@ export default function BoardDetail() {
   const [isEditingBoardName, setIsEditingBoardName] = useState(false)
   const [boardName, setBoardName] = useState("")
 
-  const boardFromLocalStorage = getBoardById(id ?? "") ?? {
+  const emptyBoard = {
     id: "",
     title: "",
+    created_at: "",
     tasks: [],
   }
 
@@ -32,8 +33,20 @@ export default function BoardDetail() {
 
   const [board, dispatchBoard] = useReducer(
     useBoardDetailReducer,
-    boardFromLocalStorage
+    emptyBoard
   )
+
+  useEffect(() => {
+    async function fetchBoard() {
+      const board = await getBoardById(id ?? "")
+
+      if (board) {
+        dispatchBoard({ type: "SET_BOARD", data: board })
+      }
+    }
+
+    fetchBoard()
+  }, [id])
 
   async function handleAddTask(task: CreateTask) {
     try {
@@ -82,8 +95,10 @@ export default function BoardDetail() {
   }
 
   async function handleUpdateTask(task: UpdateTask) {
+    if (!editTask) return
+
     try {
-      const updatedTask = await updateTask(editTask?.id ?? "", task)
+      const updatedTask = await updateTask(editTask.id, task)
 
       if (updatedTask) {
         dispatchBoard({ type: "UPDATE_TASK", data: updatedTask })
@@ -94,7 +109,7 @@ export default function BoardDetail() {
   }
 
   function handleUpdateTaskStatus(
-    id: string,
+    id: number,
     newColumn: "Todo" | "In Progress" | "Done"
   ) {
     dispatchBoard({
@@ -108,7 +123,7 @@ export default function BoardDetail() {
       return (
         <>
           <Input
-            value={board.title}
+            value={boardName}
             className="w-96"
             onChange={(event) => setBoardName(event.target.value)}
           />
@@ -163,7 +178,7 @@ export default function BoardDetail() {
         onSubmitUpdate={handleUpdateTask}
         task={
           editTask ?? {
-            id: "",
+            id: 0,
             title: "abc",
             description: "",
             column: "Todo",

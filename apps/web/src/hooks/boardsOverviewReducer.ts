@@ -1,4 +1,4 @@
-import { insertBoard, saveBoards } from "@/dataTransfer/api"
+import { saveBoards } from "@/dataTransfer/api"
 import type { Board } from "@/types.ts/boardTypes"
 
 type BoardsOverviewAction =

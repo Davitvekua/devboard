@@ -17,8 +17,8 @@ export default function Profile() {
   const [username, setUsername] = useState(context?.userName ?? "")
 
   function handleSubmit() {
-    ;(context?.setUserName(username),
-      localStorage.setItem("kanban-user-name", username))
+    context?.setUserName(username)
+    localStorage.setItem("kanban-user-name", username)
   }
 
   return (
