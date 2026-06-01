@@ -16,9 +16,9 @@ export default function Profile() {
   const context = useContext(UserNameContext)
   const [username, setUsername] = useState(context?.userName ?? "")
 
-  function handleSubmit() {
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     context?.setUserName(username)
-    localStorage.setItem("kanban-user-name", username)
   }
 
   return (
@@ -33,7 +33,7 @@ export default function Profile() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form>
+            <form id="profile-form" onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Name</Label>
@@ -57,7 +57,8 @@ export default function Profile() {
               variant="default"
               size={"icon-lg"}
               className="w-fit bg-blue-400 px-3"
-              onClick={handleSubmit}
+              form="profile-form"
+              type="submit"
             >
               Speichern
             </Button>

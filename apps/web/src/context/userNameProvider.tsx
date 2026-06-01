@@ -14,9 +14,14 @@ export default function UserNameProvider({
     return userName ?? ""
   }
 
+  function handleSetUserName(name: string) {
+    setUserName(name)
+    localStorage.setItem("kanban-user-name", name)
+  }
+
   return (
     <UserNameContext.Provider
-      value={{ userName: userName, setUserName: setUserName }}
+      value={{ userName: userName, setUserName: handleSetUserName }}
     >
       {children}
     </UserNameContext.Provider>
