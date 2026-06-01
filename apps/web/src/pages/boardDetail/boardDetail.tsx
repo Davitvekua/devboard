@@ -116,7 +116,7 @@ export default function BoardDetail() {
   }
 
   async function handleUpdateTaskStatus(
-    id: string,
+    id: number,
     newColumn: "Todo" | "In Progress" | "Done"
   ) {
     try {

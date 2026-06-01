@@ -146,7 +146,7 @@ export async function updateTask(
   return data as Task
 }
 
-export async function deleteTask(id: string): Promise<void> {
+export async function deleteTask(id: number): Promise<void> {
   const { error } = await supabase.from("tasks").delete().eq("id", id)
 
   if (error) {
