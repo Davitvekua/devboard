@@ -24,7 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@workspace/ui/components/select"
-import type { Task } from "@/types.ts/boardTypes"
+import type { CreateTask, Task } from "@/types.ts/boardTypes"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { Button } from "@workspace/ui/components/button"
 import { ChevronDownIcon } from "lucide-react"
@@ -39,7 +39,7 @@ export default function TaskDialog({
 }: {
   open: boolean
   handleOpenChange: (open: boolean) => void
-  onSubmitUpdate: (task: Task) => void
+  onSubmitUpdate: (task: CreateTask) => void
   task: Task
 }) {
   const [date, setDate] = useState<Date>(new Date(task.deadline ?? new Date()))
@@ -53,13 +53,13 @@ export default function TaskDialog({
   const context = useContext(UserNameContext)
 
   function handleSubmitUpdate() {
-    const updatedTask: Task = {
-      id: task.id,
+    const updatedTask: CreateTask = {
       title: taskTitle,
       description: taskDescription,
-      deadline: date.toISOString(),
-      assignedTo: selectedPerson === "none" ? undefined : selectedPerson,
+      deadline: date?.toISOString() ?? null,
+      assignedTo: selectedPerson === " " ? null : selectedPerson,
       column: task.column,
+      boardId: task.boardId ?? "",
     }
     onSubmitUpdate(updatedTask)
   }

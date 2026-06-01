@@ -4,8 +4,13 @@ import { ArrowLeft, Check, Pencil, X } from "lucide-react"
 import { useReducer, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import BoardColumn from "./components/boardColumn"
-import type { Task } from "@/types.ts/boardTypes"
-import { getBoardById } from "@/dataTransfer/api"
+import type { CreateTask, Task, UpdateTask } from "@/types.ts/boardTypes"
+import {
+  getBoardById,
+  insertTask,
+  updateBoard,
+  updateTask,
+} from "@/dataTransfer/api"
 import { useBoardDetailReducer } from "@/hooks/boardDetailReducer"
 import TaskDialog from "./components/taskDialog"
 
@@ -30,8 +35,19 @@ export default function BoardDetail() {
     boardFromLocalStorage
   )
 
-  function handleAddTask(task: Task) {
-    dispatchBoard({ type: "ADD_TASK", data: task })
+  async function handleAddTask(task: CreateTask) {
+    try {
+      const insertedTask = await insertTask({
+        ...task,
+        boardId: board?.id ?? "",
+      })
+
+      if (insertedTask) {
+        dispatchBoard({ type: "ADD_TASK", data: insertedTask })
+      }
+    } catch (error: unknown) {
+      console.error("Error adding task:", error)
+    }
   }
 
   function handleDeleteTask(task: Task) {
@@ -48,13 +64,33 @@ export default function BoardDetail() {
     setBoardName(board.title)
   }
 
-  function handleSubmitEditBoardTitle() {
-    dispatchBoard({ type: "UPDATE_BOARD_NAME", data: boardName })
-    setIsEditingBoardName(false)
+  async function handleSubmitEditBoardTitle() {
+    if (!board) return
+
+    const updatedBoard = await updateBoard(board.id, {
+      title: boardName,
+    })
+
+    if (updatedBoard) {
+      dispatchBoard({
+        type: "UPDATE_BOARD_NAME",
+        data: boardName,
+      })
+
+      setIsEditingBoardName(false)
+    }
   }
 
-  function handleUpdateTask(task: Task) {
-    dispatchBoard({ type: "UPDATE_TASK", data: task })
+  async function handleUpdateTask(task: UpdateTask) {
+    try {
+      const updatedTask = await updateTask(editTask?.id ?? "", task)
+
+      if (updatedTask) {
+        dispatchBoard({ type: "UPDATE_TASK", data: updatedTask })
+      }
+    } catch (error: unknown) {
+      console.error("Error updating task:", error)
+    }
   }
 
   function handleUpdateTaskStatus(
@@ -128,9 +164,13 @@ export default function BoardDetail() {
         task={
           editTask ?? {
             id: "",
-            title: "",
+            title: "abc",
             description: "",
             column: "Todo",
+            assignedTo: null,
+            deadline: null,
+            boardId: board.id ?? "",
+            created_at: new Date().toString(),
           }
         }
       />

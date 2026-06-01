@@ -1,6 +1,6 @@
 import { Button } from "@workspace/ui/components/button"
 import BoardCard from "./components/boardCard"
-import { useReducer, useState } from "react"
+import { useEffect, useReducer, useState } from "react"
 import type { Board } from "@/types.ts/boardTypes"
 import {
   Dialog,
@@ -15,29 +15,50 @@ import {
 import { Plus } from "lucide-react"
 import { Input } from "@workspace/ui/components/input"
 import useBoardOverviewReducer from "@/hooks/boardsOverviewReducer"
-import { getBoards } from "@/dataTransfer/api"
+import { getBoards, insertBoard } from "@/dataTransfer/api"
 
 export default function Overview() {
-  const [boardNameInput, setBoardNameInput] = useState("")
-  const [boards, boardsdispatch] = useReducer(
-    useBoardOverviewReducer,
-    [],
-    getBoards
-  )
+  const [boardNameInput, setBoardNameInput] = useState("Neues Board")
+  const [boards, boardsdispatch] = useReducer(useBoardOverviewReducer, [])
 
-  function handleAddNewBoard() {
-    const newBoard: Board = {
-      id: String(crypto.randomUUID()),
-      title: boardNameInput,
-      tasks: [],
-    }
-
-    boardsdispatch({ type: "ADD", data: newBoard })
-    setBoardNameInput("")
+  async function fetchBoards() {
+    const boards = await getBoards()
+    boardsdispatch({ type: "SET", data: boards })
   }
 
-  function handleDeleteBorad(id: string) {
-    boardsdispatch({ type: "DELETE", data: { id: id, title: "", tasks: [] } })
+  useEffect(() => {
+    fetchBoards()
+  }, [])
+
+  async function handleAddNewBoard() {
+    const newBoard: Board = {
+      id: "",
+      title: boardNameInput,
+      created_at: new Date().toISOString(),
+      tasks: [],
+    }
+    const insertedBoard = await insertBoard(newBoard)
+
+    if (insertedBoard) {
+      boardsdispatch({ type: "ADD", data: insertedBoard })
+      setBoardNameInput("")
+    }
+  }
+
+  function handleDeleteBoard(id: string) {
+    try {
+      boardsdispatch({
+        type: "DELETE",
+        data: {
+          id: id,
+          title: "",
+          tasks: [],
+          created_at: "",
+        },
+      })
+    } catch (error) {
+      console.error("Error deleting board:", error)
+    }
   }
 
   return (
@@ -91,7 +112,7 @@ export default function Overview() {
             <BoardCard
               key={board.id}
               board={board}
-              onDelete={handleDeleteBorad}
+              onDelete={handleDeleteBoard}
             />
           )
         })}

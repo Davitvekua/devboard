@@ -3,7 +3,7 @@ import { Calendar } from "@workspace/ui/components/calendar"
 import { Textarea } from "@workspace/ui/components/textarea"
 import { ChevronDownIcon, Plus } from "lucide-react"
 import TaskCard from "./taskCard"
-import type { Task } from "@/types.ts/boardTypes"
+import type { CreateTask, Task } from "@/types.ts/boardTypes"
 import { useContext, useState } from "react"
 import {
   Dialog,
@@ -43,7 +43,7 @@ export default function boardColumn({
 }: {
   title: "Todo" | "In Progress" | "Done"
   tasks: Task[]
-  onAddTask: (task: Task) => void
+  onAddTask: (task: CreateTask) => void
   onDeleteTask: (task: Task) => void
   onUpdateTaskStatus: (
     id: string,
