@@ -2,7 +2,7 @@ name: Deploy Vite app to GitHub Pages
 
 on:
   push:
-    branches: [supabase]
+    branches: [main, supabase]
 
 permissions:
   contents: read
