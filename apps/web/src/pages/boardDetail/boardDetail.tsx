@@ -6,6 +6,7 @@ import { Link, useParams } from "react-router-dom"
 import BoardColumn from "./components/boardColumn"
 import type { CreateTask, Task, UpdateTask } from "@/types.ts/boardTypes"
 import {
+  deleteTask,
   getBoardById,
   insertTask,
   updateBoard,
@@ -31,10 +32,7 @@ export default function BoardDetail() {
 
   const [editTask, setEditTask] = useState<Task | undefined>()
 
-  const [board, dispatchBoard] = useReducer(
-    useBoardDetailReducer,
-    emptyBoard
-  )
+  const [board, dispatchBoard] = useReducer(useBoardDetailReducer, emptyBoard)
 
   useEffect(() => {
     async function fetchBoard() {
@@ -63,8 +61,17 @@ export default function BoardDetail() {
     }
   }
 
-  function handleDeleteTask(task: Task) {
-    dispatchBoard({ type: "DELETE_TASK", data: task })
+  async function handleDeleteTask(task: Task) {
+    try {
+      await deleteTask(task.id)
+
+      dispatchBoard({
+        type: "DELETE_TASK",
+        data: task,
+      })
+    } catch (error: unknown) {
+      console.error("Error deleting task:", error)
+    }
   }
 
   function handleEditTask(task: Task) {
@@ -108,14 +115,20 @@ export default function BoardDetail() {
     }
   }
 
-  function handleUpdateTaskStatus(
-    id: number,
+  async function handleUpdateTaskStatus(
+    id: string,
     newColumn: "Todo" | "In Progress" | "Done"
   ) {
-    dispatchBoard({
-      type: "UPDATE_TASK_STATUS",
-      data: { id, newColumn },
-    })
+    try {
+      await updateTask(id, { column: newColumn })
+
+      dispatchBoard({
+        type: "UPDATE_TASK_STATUS",
+        data: { id, newColumn },
+      })
+    } catch (error: unknown) {
+      console.error("Error updating task status:", error)
+    }
   }
 
   function renderBoardDetailHeader() {
